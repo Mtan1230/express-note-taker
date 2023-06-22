@@ -32,4 +32,22 @@ notes.post('/', async (req, res) => {
     }
 })
 
+notes.delete('/:id', async (req, res) => {
+    const noteId = req.params.id;
+    try {
+        const data = await readFile('./db/db.json', 'utf8');
+        const notes = JSON.parse(data);
+        for (let i = 0; i < notes.length; i++) {
+            if (notes[i].id === noteId) {
+                notes.splice(i, 1);
+                writeFile('./db/db.json', JSON.stringify(notes));
+                return res.status(200).json(`Id ${noteId} is deleted.`);
+            }
+        }
+        res.status(404).json(`Id ${noteId} is not found.`);
+    } catch (err) {
+        console.error(err);
+    }
+})
+
 module.exports = notes;
