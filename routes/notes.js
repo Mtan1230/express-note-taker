@@ -7,12 +7,13 @@ notes.get('/', async (req, res) => {
         const data = await readFile('./db/db.json', 'utf8');
         res.json(JSON.parse(data));
     } catch (err) {
-        console.error(err)
+        console.error(err);
+        res.status(500).json('Error in getting notes');
     }
 });
 
 notes.post('/', async (req, res) => {
-    const { title, text } = req.body;
+    const { title, text = '' } = req.body;
     if (title) {
         const newNote = {
             title,
@@ -25,12 +26,15 @@ notes.post('/', async (req, res) => {
             const notes = JSON.parse(data);
             notes.push(newNote);
             writeFile('./db/db.json', JSON.stringify(notes));
-            res.json(newNote)
+            res.json(newNote);
         } catch (err) {
-            console.error(err)
+            console.error(err);
+            res.status(500).json('Error in adding note');
         }
+    } else {
+        res.status(400).json('Bad post request');
     }
-})
+});
 
 notes.delete('/:id', async (req, res) => {
     const noteId = req.params.id;
@@ -47,7 +51,8 @@ notes.delete('/:id', async (req, res) => {
         res.status(404).json(`Id ${noteId} is not found.`);
     } catch (err) {
         console.error(err);
+        res.status(500).json('Error in deleting note');
     }
-})
+});
 
 module.exports = notes;
